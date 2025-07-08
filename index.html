@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID Card Anggota PMR SMK Migas Cepu</title>
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .id-card {
+            background-color: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+        }
+        .id-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-900">
+
+    <!-- Kontainer ini akan menampung baik halaman grid maupun halaman profil -->
+    <div id="app-container" class="container mx-auto p-4 md:p-8">
+        
+        <!-- === HALAMAN UTAMA (GRID VIEW) === -->
+        <div id="grid-view">
+            <header class="text-center mb-10">
+                <h1 class="text-3xl md:text-4xl font-bold">Profil Anggota PMR</h1>
+                <p class="text-md text-gray-500 mt-2">Unit SMK Migas Cepu</p>
+            </header>
+            <main id="card-container" class="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-6">
+                <!-- Kartu-kartu akan di-generate oleh JS di sini -->
+            </main>
+        </div>
+
+        <!-- === HALAMAN PROFIL INDIVIDU === (Awalnya disembunyikan) -->
+        <div id="profile-view" class="hidden">
+            <!-- Konten profil akan di-generate oleh JS di sini -->
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATABASE ANGGOTA ---
+        const memberData = [
+            { photo: 'gambar/Norma.jpg', name: 'Normadien Izzah A., S.K.M', position: 'Pembina', instagram: '' },
+            { photo: 'gambar/Farel.jpg', name: 'Farel Bima Kurniawan', position: 'Ketua', instagram: 'farel_bim' },
+            { photo: 'gambar/Rizqika.jpg', name: 'Rizqika Anza Khairunnisa', position: 'Wakil Ketua', instagram: 'Rizqikaaaaaa' },
+            { photo: 'gambar/Erin.jpg', name: 'Erlin Azhari', position: 'Sekretaris', instagram: 'cheeeriiin' },
+            { photo: 'gambar/Farida.jpg', name: 'Farida Dwi Cahyani', position: 'Sekretaris', instagram: 'farida_dcyn' },
+            { photo: 'gambar/Rista.jpg', name: 'Rista Diah Oktavia', position: 'Bendahara', instagram: 'rscaa.via' },
+            { photo: 'gambar/Elsa.jpg', name: 'Elsa Hanum Patrisya', position: 'Bendahara', instagram: 'elsahanum_' },
+            { photo: 'gambar/Meleaki.jpg', name: 'Meleaki Punuf', position: 'Seksi Keterampilan Hidup', instagram: 'melki_pnf' },
+            { photo: 'gambar/Firman.jpg', name: 'Firman Hanif Ardiansyah', position: 'Seksi Berkarya & Berbakti kpd Masa', instagram: 'fhas8.3' },
+            { photo: '', name: 'Sani Prima Ananta', position: 'Seksi Persahabatan', instagram: 'sani_prima63_' },
+            { photo: 'gambar/Dimas.jpg', name: 'Dimas Adi Caksono', position: 'Seksi Umum', instagram: 'dimplo_rawrrr' },
+            { photo: 'gambar/Putri.jpg', name: 'Amin Putri Chusnul C.', position: 'Anggota', instagram: 'stcrzyvaaa' },
+            { photo: 'gambar/Anisa.jpg', name: 'Andi Anisa Niswatul Syakirah', position: 'Anggota', instagram: 'andianisankir_' },
+            { photo: 'gambar/Cinta.jpg', name: 'Cinta Hanna Kurniawati', position: 'Anggota', instagram: 'ciinoccent_' },
+            { photo: '', name: 'Dyah Ayu Ningtyas', position: 'Anggota', instagram: 'aitysaa' },
+            { photo: 'gambar/Hasna.jpg', name: 'Hasna Nur Aulia', position: 'Anggota', instagram: '444hazznn' },
+            { photo: 'gambar/Wahyu.jpg', name: 'Wahyu Farich Nuril Ichsan', position: 'Anggota', instagram: 'witchh132' }
+        ];
+
+        // --- Logo ---
+        const logoSmkMigasUrl = 'https://upload.wikimedia.org/wikipedia/jv/7/7a/SMK_Migas_Cepu.jpg';
+        const logoPmiUrl = 'https://upload.wikimedia.org/wikipedia/id/6/65/Pmi.png';
+        
+        const pmrDefinition = 'Palang Merah Remaja (PMR) adalah wadah pembinaan dan pengembangan anggota remaja PMI, yang berpusat di sekolah atau kelompok masyarakat, dengan tujuan membangun dan mengembangkan karakter Kepalangmerahan agar siap menjadi relawan PMI pada masa depan.';
+        
+        // Palet Wa
+        const darkBlue = '#19376D';
+        const yellow = '#F8C660';
+        const orange = '#E88A4D';
+        const red = '#C14B31';
+
+        const gridView = document.getElementById('grid-view');
+        const profileView = document.getElementById('profile-view');
+        const cardContainer = document.getElementById('card-container');
+
+
+        function showGridView() {
+            gridView.classList.remove('hidden');
+            profileView.classList.add('hidden');
+            profileView.innerHTML = '';
+        }
+
+        function showProfileView(id) {
+            const member = memberData[id];
+            if (!member) {
+                showGridView();
+                return;
+            }
+
+            gridView.classList.add('hidden');
+            profileView.classList.remove('hidden');
+            
+            profileView.innerHTML = `
+                <div class="max-w-2xl mx-auto">
+                    <button id="back-button" class="mb-6 inline-flex items-center text-gray-600 hover:text-gray-900 font-semibold">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        Kembali ke Daftar
+                    </button>
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                        <div class="p-5 h-32" style="background-color: ${darkBlue}; border-bottom: 5px solid ${yellow};">
+                            <div class="flex justify-between items-center">
+                                <img src="${logoSmkMigasUrl}" alt="Logo SMK Migas Cepu" class="h-12 w-auto bg-white p-1 rounded-md object-contain">
+                                <img src="${logoPmiUrl}" alt="Logo PMI" class="h-12 w-auto bg-white p-1 rounded-md object-contain">
+                            </div>
+                        </div>
+                        <div class="p-6 text-center">
+                            <img src="${member.photo}" class="w-40 h-40 object-cover rounded-full border-4 border-white shadow-xl mx-auto -mt-24" onerror="this.onerror=null;this.src='https://placehold.co/400x300/ccc/333?text=Error';">
+                            <h2 class="text-3xl font-bold mt-4">${member.name}</h2>
+                            <p class="text-xl font-semibold mt-1" style="color: ${orange};">${member.position}</p>
+                            <a href="https://instagram.com/${member.instagram}" target="_blank" class="inline-flex items-center justify-center mt-3 text-gray-500 hover:text-gray-900 transition">
+                                <svg class="w-5 h-5 mr-2" fill="${red}" viewBox="0 0 16 16"><path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.703.01 5.556 0 5.829 0 8s.01 2.444.048 3.297c.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.556 15.99 5.829 16 8 16s2.444-.01 3.297-.048c.852-.04 1.433-.174 1.942-.372.526-.205.972-.478 1.417-.923.445-.444.718-.891.923-1.417.198-.51.333-1.09.372-1.942C15.99 10.444 16 10.171 16 8s-.01-2.444-.048-3.297c-.04-.852-.174-1.433-.372-1.942a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.09-.333-1.942-.372C10.444.01 10.171 0 8 0zM8 1.44c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92c.11.281.24.705.275 1.486.039.843.047 1.096.047 3.232s-.008 2.389-.047 3.232c-.035.78-.166 1.204-.275 1.486a2.5 2.5 0 0 1-.599.92c-.28.28-.546.453-.92.598-.28.11-.704.24-1.486.275-.843-.039-1.096.047-3.232.047s-2.389-.008-3.232-.047c-.78-.035-1.204-.166-1.486-.275a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.598-.92c-.11-.281-.24-.705-.275-1.486-.039-.843-.047-1.096-.047-3.232s.008-2.389.047-3.232c.035-.78.166-1.204.275-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.486-.275.843-.039 1.096-.047 3.232-.047z M8 4.405a3.595 3.595 0 1 0 0 7.19 3.595 3.595 0 0 0 0-7.19zm0 5.695a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2zm-4.316-5.25a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92z"/></svg>
+                                <span>${member.instagram}</span>
+                            </a>
+                        </div>
+                        <div class="bg-gray-50 p-6 border-t border-gray-200">
+                             <h3 class="font-bold text-lg text-left mb-2" style="color: ${red};">Tentang PMR</h3>
+                             <p class="text-sm text-gray-600 text-justify leading-relaxed">${pmrDefinition}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('back-button').addEventListener('click', showGridView);
+        }
+
+        // --- INISIALISASI ---
+
+        memberData.forEach((member, index) => {
+            const cardHTML = `
+                <div class="id-card flex flex-col" data-index="${index}">
+                    <div class="p-6 flex-grow flex flex-col justify-center items-center text-center">
+                         <img src="${member.photo}" class="w-24 h-24 object-cover rounded-full border-4 border-white shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/400x300/ccc/333?text=Error';">
+                         <h2 class="text-lg font-bold mt-4 truncate w-full">${member.name}</h2>
+                         <p class="text-md font-semibold" style="color: ${orange};">${member.position}</p>
+                    </div>
+                    <div class="bg-gray-50 p-3 text-center border-t">
+                        <span class="text-xs font-semibold" style="color: ${red};">Lihat Profil</span>
+                    </div>
+                </div>
+            `;
+            cardContainer.innerHTML += cardHTML;
+        });
+
+        cardContainer.addEventListener('click', (e) => {
+            const card = e.target.closest('.id-card');
+            if (card) {
+                const id = card.dataset.index;
+                showProfileView(parseInt(id, 10));
+            }
+        });
+        
+        function handleRouting() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (id !== null && id >= 0 && id < memberData.length) {
+                showProfileView(parseInt(id, 10));
+            } else {
+                showGridView();
+            }
+        }
+
+        handleRouting();
+
+    </script>
+</body>
+</html>
